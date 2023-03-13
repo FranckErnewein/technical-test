@@ -1,5 +1,6 @@
 import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
+import { NftDetails } from "../../types";
 import axios from "axios";
 
 interface LambdaEvent {
@@ -30,13 +31,6 @@ interface AlchemyPayload {
   };
 }
 
-type EndPointPayload = {
-  contractAddress: string;
-  collectionName?: string;
-  collectionImage?: string;
-  type: "ERC721" | "ERC1155";
-};
-
 const { ALCHEMY_API_KEY } = process.env;
 
 const getNftCollectionDetails = async (event: LambdaEvent) => {
@@ -55,7 +49,7 @@ const getNftCollectionDetails = async (event: LambdaEvent) => {
   )
     throw "token type not supported";
 
-  const result: EndPointPayload = {
+  const result: NftDetails = {
     contractAddress,
     collectionName: data.contractMetadata.openSea?.collectionName,
     collectionImage: data.contractMetadata.openSea?.imageUrl,

@@ -1,13 +1,13 @@
 import { formatJSONResponse } from "@libs/api-gateway";
 import { middyfy } from "@libs/lambda";
-import {
-  DynamoDBClient,
-  CreateTableCommand,
-  BillingMode,
-  KeyType,
-  ScalarAttributeType,
-  ListTablesCommand,
-} from "@aws-sdk/client-dynamodb";
+import { NftDetails } from "../../types";
+import { DynamoDBClient, PutItemCommand } from "@aws-sdk/client-dynamodb";
+
+interface LambdaEvent {
+  body: {
+    contractAddress: string;
+  };
+}
 
 let ddb: any;
 function getDdbClient() {
@@ -24,11 +24,27 @@ function getDdbClient() {
   return ddb;
 }
 
-const createCollection = async (event) => {
-  await getDdbClient().putItem({
-    Item: {},
-  });
-  return formatJSONResponse({});
+const createCollection = async (event: LambdaEvent) => {
+  const item: NftDetails = {
+    contractAddress: event.body.contractAddress,
+    collectionName: "A name",
+    collectionImage: "http://image.url",
+    type: "ERC721",
+  };
+  const result = await getDdbClient().send(
+    new PutItemCommand({
+      TableName: "appTable",
+      Item: {
+        PK: {
+          S: JSON.stringify(item),
+        },
+        SK: {
+          S: item.contractAddress,
+        },
+      },
+    })
+  );
+  return formatJSONResponse(result);
 };
 
 export const main = middyfy(createCollection);
