@@ -19,13 +19,19 @@ function getDdbClient() {
 export async function insertNftDetails(item: NftDetails) {
   return getDdbClient().send(
     new PutItemCommand({
-      TableName: "appTable",
+      TableName: "nftDefatilsTable",
       Item: {
-        PK: {
-          S: JSON.stringify(item),
-        },
-        SK: {
+        contractAddress: {
           S: item.contractAddress,
+        },
+        collectionName: {
+          S: item.collectionName || "",
+        },
+        collectionImage: {
+          S: item.collectionImage || "",
+        },
+        type: {
+          S: item.type,
         },
       },
     })
